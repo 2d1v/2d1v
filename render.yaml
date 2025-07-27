@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: discord-webhook-api
-    env: node
-    plan: free
-    buildCommand: "npm install"
-    startCommand: "node server.js"
