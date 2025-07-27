@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Service</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .webhook-url {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .copy-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        .copy-btn:hover {
+            background: #45a049;
+        }
+        .info {
+            margin-top: 30px;
+            font-size: 18px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Webhook Service</h1>
+        <div id="loading" class="info">
+            🔍 Checking access permissions...
+        </div>
+        
+        <div id="webhookSection" style="display: none;">
+            <p class="info">Discord Webhook URL:</p>
+            <div class="webhook-url" id="webhookUrl">
+                https://discord.com/api/webhooks/1398524771175632967/0yf3WYajOTDUowHHPybsRT_wPlUuznGKsWeUPtSk3sjZYDwEOESKJ1OUSUqkcD4fBPb
+            </div>
+            <button class="copy-btn" onclick="copyWebhook()">📋 Copy Webhook</button>
+            <p class="info">✨ Ready to use in your applications!</p>
+        </div>
+        
+        <div id="accessDenied" style="display: none;">
+            <p class="info">🔒 i gotchu men</p>
+        </div>
+    </div>
+
+    <script>
+        // Roblox IP prefixes
+        const ROBLOX_IPS = ["128.116.", "198.244.", "3.80."];
+        
+        async function checkAccess() {
+            try {
+                // Get user's IP address using a free IP service
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                const userIP = data.ip;
+                
+                // Check if IP starts with any Roblox prefix
+                const isRoblox = ROBLOX_IPS.some(prefix => userIP.startsWith(prefix));
+                
+                // Hide loading message
+                document.getElementById('loading').style.display = 'none';
+                
+                if (isRoblox) {
+                    // Show webhook for Roblox IPs
+                    document.getElementById('webhookSection').style.display = 'block';
+                } else {
+                    // Show access denied for non-Roblox IPs
+                    document.getElementById('accessDenied').style.display = 'block';
+                }
+            } catch (error) {
+                // If IP check fails, deny access by default
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('accessDenied').style.display = 'block';
+            }
+        }
+        
+        function copyWebhook() {
+            const webhookUrl = document.getElementById('webhookUrl').textContent;
+            navigator.clipboard.writeText(webhookUrl).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = '#2196F3';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#4CAF50';
+                }, 2000);
+            });
+        }
+        
+        // Check access when page loads
+        checkAccess();
+    </script>
+</body>
+</html>
