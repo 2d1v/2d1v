@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "echo 'No build step required for this Node.js server'"
+    "build": "echo 'Static site ready'"
   },
   "dependencies": {
     "express": "^4.18.2"
