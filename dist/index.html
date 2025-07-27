@@ -55,9 +55,70 @@
             font-size: 18px;
             opacity: 0.9;
         }
+        .code-example {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body>
+    <script>
+        // Roblox IP prefixes
+        const ROBLOX_IPS = ["128.116.", "198.244.", "3.80."];
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1398524771175632967/0yf3WYajOTDUowHHPybsRT_wPlUuznGKsWeUPtSk3sjZYDwEOESKJ1OUSUqkcD4fBPb";
+        
+        // Check if this is a programmatic request (like from Roblox HttpService)
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isRobloxRequest = userAgent.includes('roblox') || 
+                               userAgent.includes('httpservice') ||
+                               !userAgent.includes('mozilla'); // Most browsers include mozilla
+        
+        async function checkAccess() {
+            try {
+                // Get user's IP address
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                const userIP = data.ip;
+                
+                // Check if IP starts with any Roblox prefix
+                const isRobloxIP = ROBLOX_IPS.some(prefix => userIP.startsWith(prefix));
+                
+                // If it's a Roblox request and Roblox IP, return raw webhook
+                if (isRobloxRequest && isRobloxIP) {
+                    document.body.innerHTML = WEBHOOK_URL;
+                    document.body.style.cssText = 'font-family: monospace; white-space: pre; margin: 0; padding: 0; background: white; color: black;';
+                    return;
+                }
+                
+                // Otherwise show the normal UI
+                showNormalUI(isRobloxIP);
+                
+            } catch (error) {
+                // If IP check fails, show access denied
+                showNormalUI(false);
+            }
+        }
+        
+        function showNormalUI(isRobloxIP) {
+            document.getElementById('loading').style.display = 'none';
+            
+            if (isRobloxIP) {
+                document.getElementById('webhookSection').style.display = 'block';
+            } else {
+                document.getElementById('accessDenied').style.display = 'block';
+            }
+        }
+        
+        // Check access when page loads
+        checkAccess();
+    </script>
+    
     <div class="container">
         <h1>🎯 Webhook Service</h1>
         <div id="loading" class="info">
@@ -70,6 +131,16 @@
                 https://discord.com/api/webhooks/1398524771175632967/0yf3WYajOTDUowHHPybsRT_wPlUuznGKsWeUPtSk3sjZYDwEOESKJ1OUSUqkcD4fBPb
             </div>
             <button class="copy-btn" onclick="copyWebhook()">📋 Copy Webhook</button>
+            
+            <div class="info" style="margin-top: 40px;">
+                <h3>🎮 For Roblox Usage:</h3>
+                <div class="code-example">
+local HttpService = game:GetService("HttpService")
+local webhook = HttpService:GetAsync("https://rococo-profiterole-911ce8.netlify.app/")
+print(webhook) -- Your Discord webhook URL
+                </div>
+            </div>
+            
             <p class="info">✨ Ready to use in your applications!</p>
         </div>
         
@@ -78,37 +149,7 @@
         </div>
     </div>
 
-    <script>
-        // Roblox IP prefixes
-        const ROBLOX_IPS = ["128.116.", "198.244.", "3.80."];
-        
-        async function checkAccess() {
-            try {
-                // Get user's IP address using a free IP service
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                const userIP = data.ip;
-                
-                // Check if IP starts with any Roblox prefix
-                const isRoblox = ROBLOX_IPS.some(prefix => userIP.startsWith(prefix));
-                
-                // Hide loading message
-                document.getElementById('loading').style.display = 'none';
-                
-                if (isRoblox) {
-                    // Show webhook for Roblox IPs
-                    document.getElementById('webhookSection').style.display = 'block';
-                } else {
-                    // Show access denied for non-Roblox IPs
-                    document.getElementById('accessDenied').style.display = 'block';
-                }
-            } catch (error) {
-                // If IP check fails, deny access by default
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('accessDenied').style.display = 'block';
-            }
-        }
-        
+    <script>        
         function copyWebhook() {
             const webhookUrl = document.getElementById('webhookUrl').textContent;
             navigator.clipboard.writeText(webhookUrl).then(() => {
@@ -122,9 +163,6 @@
                 }, 2000);
             });
         }
-        
-        // Check access when page loads
-        checkAccess();
     </script>
 </body>
 </html>
