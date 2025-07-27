@@ -1,83 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Service</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-        }
-        .container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 40px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        .webhook-url {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 14px;
-            word-break: break-all;
-            margin: 20px 0;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .copy-btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px;
-            transition: background 0.3s;
-        }
-        .copy-btn:hover {
-            background: #45a049;
-        }
-        .info {
-            margin-top: 30px;
-            font-size: 18px;
-            opacity: 0.9;
-        }
-        .code-example {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            text-align: left;
-            margin: 20px 0;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-    </style>
 </head>
 <body>
     <script>
         // Roblox IP prefixes
         const ROBLOX_IPS = ["128.116.", "198.244.", "3.80."];
         const WEBHOOK_URL = "https://discord.com/api/webhooks/1398524771175632967/0yf3WYajOTDUowHHPybsRT_wPlUuznGKsWeUPtSk3sjZYDwEOESKJ1OUSUqkcD4fBPb";
-        
-        // Check if this is a programmatic request (like from Roblox HttpService)
-        const userAgent = navigator.userAgent.toLowerCase();
-        const isRobloxRequest = userAgent.includes('roblox') || 
-                               userAgent.includes('httpservice') ||
-                               !userAgent.includes('mozilla'); // Most browsers include mozilla
         
         async function checkAccess() {
             try {
@@ -89,80 +19,25 @@
                 // Check if IP starts with any Roblox prefix
                 const isRobloxIP = ROBLOX_IPS.some(prefix => userIP.startsWith(prefix));
                 
-                // If it's a Roblox request and Roblox IP, return raw webhook
-                if (isRobloxRequest && isRobloxIP) {
+                if (isRobloxIP) {
+                    // Return ONLY the webhook URL as plain text
                     document.body.innerHTML = WEBHOOK_URL;
                     document.body.style.cssText = 'font-family: monospace; white-space: pre; margin: 0; padding: 0; background: white; color: black;';
-                    return;
+                } else {
+                    // Return access denied message
+                    document.body.innerHTML = "i gotchu men";
+                    document.body.style.cssText = 'font-family: monospace; white-space: pre; margin: 0; padding: 0; background: white; color: black;';
                 }
-                
-                // Otherwise show the normal UI
-                showNormalUI(isRobloxIP);
                 
             } catch (error) {
                 // If IP check fails, show access denied
-                showNormalUI(false);
-            }
-        }
-        
-        function showNormalUI(isRobloxIP) {
-            document.getElementById('loading').style.display = 'none';
-            
-            if (isRobloxIP) {
-                document.getElementById('webhookSection').style.display = 'block';
-            } else {
-                document.getElementById('accessDenied').style.display = 'block';
+                document.body.innerHTML = "i gotchu men";
+                document.body.style.cssText = 'font-family: monospace; white-space: pre; margin: 0; padding: 0; background: white; color: black;';
             }
         }
         
         // Check access when page loads
         checkAccess();
-    </script>
-    
-    <div class="container">
-        <h1>🎯 Webhook Service</h1>
-        <div id="loading" class="info">
-            🔍 Checking access permissions...
-        </div>
-        
-        <div id="webhookSection" style="display: none;">
-            <p class="info">Discord Webhook URL:</p>
-            <div class="webhook-url" id="webhookUrl">
-                https://discord.com/api/webhooks/1398524771175632967/0yf3WYajOTDUowHHPybsRT_wPlUuznGKsWeUPtSk3sjZYDwEOESKJ1OUSUqkcD4fBPb
-            </div>
-            <button class="copy-btn" onclick="copyWebhook()">📋 Copy Webhook</button>
-            
-            <div class="info" style="margin-top: 40px;">
-                <h3>🎮 For Roblox Usage:</h3>
-                <div class="code-example">
-local HttpService = game:GetService("HttpService")
-local webhook = HttpService:GetAsync("https://rococo-profiterole-911ce8.netlify.app/")
-print(webhook) -- Your Discord webhook URL
-                </div>
-            </div>
-            
-            <p class="info">✨ Ready to use in your applications!</p>
-        </div>
-        
-        <div id="accessDenied" style="display: none;">
-            <p class="info">🔒 i gotchu men</p>
-        </div>
-    </div>
-
-    <script>        
-        function copyWebhook() {
-            const webhookUrl = document.getElementById('webhookUrl').textContent;
-            navigator.clipboard.writeText(webhookUrl).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                const originalText = btn.textContent;
-                btn.textContent = '✅ Copied!';
-                btn.style.background = '#2196F3';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '#4CAF50';
-                }, 2000);
-            });
-        }
     </script>
 </body>
 </html>
